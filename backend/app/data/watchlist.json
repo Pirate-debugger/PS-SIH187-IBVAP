@@ -1,0 +1,57 @@
+[
+  {
+    "plate_number": "HR26DK8337",
+    "vehicle_type": "SUV / Bolero",
+    "vehicle_make_model": "Mahindra Bolero Camouflage",
+    "color": "Matte Olive Green",
+    "threat_level": "CRITICAL",
+    "reason": "Flagged in Cross-Border Contraband & Arms Smuggling Case #SSB-2026-904",
+    "registered_owner": "R. K. Tyagi (Suspect Alias)",
+    "reported_date": "2026-08-12",
+    "active": true
+  },
+  {
+    "plate_number": "DL01AB1234",
+    "vehicle_type": "Truck / Heavy",
+    "vehicle_make_model": "Tata 407 Cargo",
+    "color": "Yellow / Blue Canopy",
+    "threat_level": "HIGH",
+    "reason": "Suspected Unauthorized Border Cross-Over Vehicle (Checkpost Alert)",
+    "registered_owner": "Apex Logistics (Blacklisted)",
+    "reported_date": "2026-07-28",
+    "active": true
+  },
+  {
+    "plate_number": "PB02AZ9999",
+    "vehicle_type": "Motorcycle",
+    "vehicle_make_model": "Royal Enfield 350",
+    "color": "Black",
+    "threat_level": "HIGH",
+    "reason": "Used in Perimeter Reconnaissance & Fencing Survey Attempt",
+    "registered_owner": "Unknown / Fake Registration",
+    "reported_date": "2026-08-20",
+    "active": true
+  },
+  {
+    "plate_number": "UP16XY5555",
+    "vehicle_type": "Sedan",
+    "vehicle_make_model": "Toyota Innova",
+    "color": "Silver",
+    "threat_level": "MEDIUM",
+    "reason": "Overstayed transit permit in border buffer zone",
+    "registered_owner": "Border Transit Agency",
+    "reported_date": "2026-08-15",
+    "active": true
+  },
+  {
+    "plate_number": "SSB01DEF01",
+    "vehicle_type": "Patrol Vehicle",
+    "vehicle_make_model": "SSB Force Gurkha 4x4",
+    "color": "Tactical White",
+    "threat_level": "WHITE_LIST",
+    "reason": "Authorized SSB Border Patrol Command Vehicle (Sector 4 QRF)",
+    "registered_owner": "Sashastra Seema Bal Batt. 24",
+    "reported_date": "2026-01-01",
+    "active": true
+  }
+]
