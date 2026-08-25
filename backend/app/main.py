@@ -12,6 +12,8 @@ from app.api.routes_incidents import get_incidents_router
 from app.api.routes_anpr import get_anpr_router
 from app.api.routes_scenarios import get_scenarios_router
 from app.api.routes_system import get_system_router
+from app.api.routes_investigation import get_investigation_router
+from app.api.routes_audit import get_audit_router
 
 # Initialize single orchestrator instance
 stream_manager = StreamManager()
@@ -30,7 +32,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=f"{SYSTEM_NAME} - {SYSTEM_LONG_NAME}",
     description="Next-Generation AI-Based Intelligent Video Analytics Platform for Border Surveillance (SSB / Ministry of Home Affairs)",
-    version="2.0.0",
+    version="3.0.0",
     lifespan=lifespan
 )
 
@@ -53,6 +55,8 @@ app.include_router(get_incidents_router(stream_manager))
 app.include_router(get_anpr_router(stream_manager))
 app.include_router(get_scenarios_router(stream_manager))
 app.include_router(get_system_router(stream_manager))
+app.include_router(get_investigation_router(stream_manager))
+app.include_router(get_audit_router(stream_manager))
 
 @app.websocket("/ws/live")
 async def websocket_live_endpoint(websocket: WebSocket):

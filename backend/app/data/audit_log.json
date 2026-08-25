@@ -1,0 +1,11 @@
+[
+  {
+    "id": "5bf6f753",
+    "timestamp": "2026-08-25 23:11:27",
+    "operator_id": "SSB-OPR-402",
+    "operator_role": "OPERATOR",
+    "action_type": "RESET_SCENARIOS",
+    "target_resource": "ALL_CAMERAS",
+    "details": "Reset all camera feeds and cleared incident queue for SIH demo"
+  }
+]

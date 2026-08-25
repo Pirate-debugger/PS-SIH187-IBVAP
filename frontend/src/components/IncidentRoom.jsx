@@ -11,14 +11,19 @@ import {
   Navigation, 
   Camera, 
   ListChecks, 
-  ExternalLink,
   ChevronRight,
-  Filter
+  Filter,
+  UserPlus,
+  MessageSquare,
+  Activity,
+  Layers
 } from 'lucide-react';
 
 export default function IncidentRoom() {
   const { incidents, selectedIncident, setSelectedIncident, updateIncidentStatus } = useSurveillance();
   const [severityFilter, setSeverityFilter] = useState('ALL');
+  const [responderInput, setResponderInput] = useState('');
+  const [noteInput, setNoteInput] = useState('');
 
   const filteredIncidents = incidents.filter(inc => {
     if (severityFilter === 'ALL') return true;
@@ -27,27 +32,43 @@ export default function IncidentRoom() {
 
   const activeInc = selectedIncident || filteredIncidents[0] || null;
 
+  const handleAddNote = (e) => {
+    e.preventDefault();
+    if (!noteInput || !activeInc) return;
+    updateIncidentStatus(activeInc.incident_id, activeInc.status, noteInput, activeInc.assigned_responder);
+    setNoteInput('');
+  };
+
+  const handleAssignResponder = (e) => {
+    e.preventDefault();
+    if (!responderInput || !activeInc) return;
+    updateIncidentStatus(activeInc.incident_id, 'UNDER_INVESTIGATION', `Assigned to ${responderInput}`, responderInput);
+    setResponderInput('');
+  };
+
+  const lifecycleStages = ["DETECTED", "TRIAGED", "ACKNOWLEDGED", "UNDER_INVESTIGATION", "RESOLVED"];
+
   return (
     <div className="flex flex-col gap-4">
       
       {/* Top Banner */}
-      <div className="tactical-panel px-4 py-3 rounded-xl flex flex-wrap items-center justify-between gap-3">
+      <div className="tactical-panel px-4 py-3 rounded-xl flex flex-wrap items-center justify-between gap-3 border-l-4 border-l-red-500">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-red-950/70 border border-red-500/40 text-red-400">
             <FileText className="w-5 h-5" />
           </div>
           <div>
             <div className="font-orbitron font-bold text-sm text-white">
-              INCIDENT INTELLIGENCE & INVESTIGATION ROOM
+              BORDER INCIDENT INTELLIGENCE & FORENSICS ROOM
             </div>
             <div className="text-[11px] text-slate-400 font-mono-hud">
-              Structured Border Incident Dossiers • Keyframe Evidence • Tactical SSB Standard Operating Procedures (SOP)
+              Lifecycle Tracking • Explainable Mathematical Risk Breakdown • Evidence Micro-Timelines • SSB Tactical SOPs
             </div>
           </div>
         </div>
 
         {/* Severity Filter */}
-        <div className="flex items-center gap-1.5 bg-[#090d16] p-1 rounded-lg border border-slate-800">
+        <div className="flex items-center gap-1 bg-[#090d16] p-1 rounded-lg border border-slate-800">
           <Filter className="w-3.5 h-3.5 text-slate-500 ml-1.5" />
           {['ALL', 'CRITICAL', 'HIGH', 'MEDIUM'].map(sev => (
             <button
@@ -65,11 +86,11 @@ export default function IncidentRoom() {
         </div>
       </div>
 
-      {/* Main 2-Column Split: Incidents List on Left, Active Dossier on Right */}
+      {/* Main 2-Column Split */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         
         {/* Left 4 Cols: Incidents Timeline List */}
-        <div className="lg:col-span-4 tactical-panel p-3.5 rounded-xl flex flex-col gap-2.5 max-h-[750px]">
+        <div className="lg:col-span-4 tactical-panel p-3.5 rounded-xl flex flex-col gap-2.5 max-h-[780px]">
           <div className="flex items-center justify-between border-b border-slate-800 pb-2">
             <span className="font-mono-hud font-bold text-xs text-white uppercase tracking-wider">
               Incident Dossier Feed ({filteredIncidents.length})
@@ -78,12 +99,13 @@ export default function IncidentRoom() {
 
           <div className="flex-1 overflow-y-auto flex flex-col gap-2 pr-1">
             {filteredIncidents.length === 0 ? (
-              <div className="text-center text-slate-500 font-mono-hud text-xs p-6">
+              <div className="text-center text-slate-500 font-mono-hud text-xs p-8">
                 No incidents match the selected filter.
               </div>
             ) : (
               filteredIncidents.map(inc => {
                 const isSelected = activeInc?.incident_id === inc.incident_id;
+                const riskScore = inc.risk_assessment?.score || 75;
                 return (
                   <div
                     key={inc.incident_id}
@@ -98,15 +120,16 @@ export default function IncidentRoom() {
                       <span className="font-mono-hud font-bold text-xs text-cyan-300">
                         {inc.incident_id}
                       </span>
-                      <span className={`px-2 py-0.5 rounded text-[9px] font-mono-hud font-bold border ${
-                        inc.severity === 'CRITICAL'
-                          ? 'bg-red-950/70 border-red-500 text-red-400'
-                          : inc.severity === 'HIGH'
-                          ? 'bg-orange-950/70 border-orange-500 text-orange-400'
-                          : 'bg-yellow-950/70 border-yellow-500 text-yellow-400'
-                      }`}>
-                        {inc.severity}
-                      </span>
+                      <div className="flex items-center gap-1">
+                        <span className="text-[10px] font-mono-hud text-amber-400 font-bold bg-amber-950/40 px-1.5 py-0.2 rounded border border-amber-500/30">
+                          {riskScore}/100
+                        </span>
+                        <span className={`px-2 py-0.5 rounded text-[9px] font-mono-hud font-bold border ${
+                          inc.severity === 'CRITICAL' ? 'bg-red-950/70 border-red-500 text-red-400' : 'bg-orange-950/70 border-orange-500 text-orange-400'
+                        }`}>
+                          {inc.severity}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="text-xs font-semibold text-white truncate">
@@ -118,7 +141,7 @@ export default function IncidentRoom() {
                     </div>
 
                     <div className="flex items-center justify-between text-[10px] font-mono-hud text-slate-500 pt-1 border-t border-slate-800/60">
-                      <span>{inc.timestamp}</span>
+                      <span>Status: <strong className="text-emerald-400">{inc.status}</strong></span>
                       <span className="text-cyan-400 flex items-center gap-0.5">
                         Inspect <ChevronRight className="w-3 h-3" />
                       </span>
@@ -131,11 +154,11 @@ export default function IncidentRoom() {
         </div>
 
         {/* Right 8 Cols: Detailed Dossier Viewer */}
-        <div className="lg:col-span-8 tactical-panel p-5 rounded-xl flex flex-col gap-4">
+        <div className="lg:col-span-8 tactical-panel p-5 rounded-xl flex flex-col gap-4 overflow-y-auto max-h-[780px]">
           {activeInc ? (
             <div className="flex flex-col gap-4">
               
-              {/* Dossier Header & Export Button */}
+              {/* Dossier Header & Export */}
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
                 <div>
                   <div className="flex items-center gap-2">
@@ -143,15 +166,16 @@ export default function IncidentRoom() {
                       {activeInc.incident_id}
                     </span>
                     <span className={`px-2.5 py-0.5 rounded text-xs font-mono-hud font-bold border ${
-                      activeInc.severity === 'CRITICAL'
-                        ? 'bg-red-950 border-red-500 text-red-400'
-                        : 'bg-orange-950 border-orange-500 text-orange-400'
+                      activeInc.severity === 'CRITICAL' ? 'bg-red-950 border-red-500 text-red-400' : 'bg-orange-950 border-orange-500 text-orange-400'
                     }`}>
                       {activeInc.severity} SEVERITY
                     </span>
+                    <span className="px-2 py-0.5 rounded text-xs font-mono-hud font-bold bg-amber-950/60 text-amber-300 border border-amber-500/40">
+                      THREAT SCORE: {activeInc.risk_assessment?.score || 75}/100
+                    </span>
                   </div>
                   <div className="text-xs text-slate-400 font-mono-hud mt-0.5">
-                    {activeInc.location_str} • Timestamp: {activeInc.timestamp} IST
+                    {activeInc.location_str} • {activeInc.timestamp} IST • Sector 04
                   </div>
                 </div>
 
@@ -161,50 +185,96 @@ export default function IncidentRoom() {
                     className="px-3.5 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-bold font-mono-hud text-xs flex items-center gap-2 transition-all shadow-[0_0_12px_rgba(0,240,255,0.3)]"
                   >
                     <Printer className="w-4 h-4" />
-                    <span>Export Dossier (Print / PDF)</span>
+                    <span>Export Confidential Dossier (PDF)</span>
                   </button>
                 </div>
               </div>
 
-              {/* Dossier Metadata Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-[#090d16] p-3 rounded-lg border border-slate-800 font-mono-hud text-xs">
-                <div>
-                  <span className="text-slate-500 text-[10px] uppercase">Camera ID</span>
-                  <div className="text-white font-bold">{activeInc.camera_id}</div>
+              {/* 6-Stage Lifecycle Stepper */}
+              <div className="bg-[#090d16] p-3 rounded-lg border border-slate-800 flex flex-col gap-2">
+                <div className="text-[11px] font-mono-hud text-slate-400 uppercase font-bold">
+                  Incident Response Lifecycle:
                 </div>
-                <div>
-                  <span className="text-slate-500 text-[10px] uppercase">Movement Vector</span>
-                  <div className="text-yellow-400 font-bold">{activeInc.movement_vector}</div>
-                </div>
-                <div>
-                  <span className="text-slate-500 text-[10px] uppercase">Dwell / Breach Duration</span>
-                  <div className="text-cyan-300 font-bold">{activeInc.duration_sec} Seconds</div>
-                </div>
-                <div>
-                  <span className="text-slate-500 text-[10px] uppercase">Investigation Status</span>
-                  <div className="text-emerald-400 font-bold">{activeInc.status}</div>
-                </div>
-              </div>
-
-              {/* Keyframe Evidence Snapshot */}
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2 text-xs font-mono-hud text-slate-300 font-bold uppercase tracking-wider">
-                  <Camera className="w-4 h-4 text-cyan-400" />
-                  <span>Keyframe Surveillance Evidence Snapshot</span>
-                </div>
-                <div className="rounded-xl overflow-hidden border border-slate-700 bg-black aspect-video max-h-72">
-                  <img
-                    src={activeInc.snapshot_url}
-                    alt="Keyframe Evidence"
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.src = "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=80";
-                    }}
-                  />
+                <div className="flex items-center justify-between gap-1 overflow-x-auto">
+                  {lifecycleStages.map((stage, idx) => {
+                    const currentIndex = lifecycleStages.indexOf(activeInc.status);
+                    const isPassed = idx <= currentIndex;
+                    return (
+                      <div key={stage} className="flex items-center gap-1.5 shrink-0">
+                        <div className={`px-2 py-1 rounded text-[10px] font-mono-hud font-bold border transition-all ${
+                          isPassed ? 'bg-emerald-950 border-emerald-500 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-600'
+                        }`}>
+                          {stage}
+                        </div>
+                        {idx < lifecycleStages.length - 1 && (
+                          <div className={`w-4 h-0.5 ${idx < currentIndex ? 'bg-emerald-500' : 'bg-slate-800'}`} />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* SSB Standard Operating Procedure (SOP) Action Checklist */}
+              {/* Mathematical Explainable Risk Breakdown */}
+              {activeInc.risk_assessment && (
+                <div className="bg-[#080d17] p-3.5 rounded-lg border border-amber-500/30 flex flex-col gap-2">
+                  <div className="flex items-center gap-2 text-xs font-mono-hud font-bold text-amber-300 uppercase tracking-wider">
+                    <Layers className="w-4 h-4" />
+                    <span>Explainable Risk Factor Mathematical Breakdown (Score: {activeInc.risk_assessment.score}/100)</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs font-mono-hud">
+                    {activeInc.risk_assessment.factors.map((f, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-[#0e1626] p-2 rounded border border-slate-800">
+                        <span className="text-slate-300">{f.factor}</span>
+                        <span className="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold">
+                          +{f.points} pts
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-[11px] font-mono-hud text-slate-400 italic">
+                    {activeInc.risk_assessment.calculation_summary}
+                  </div>
+                </div>
+              )}
+
+              {/* Keyframe Snapshot & Forensics Micro-Timeline Split */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {/* Snapshot */}
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-1.5 text-xs font-mono-hud text-slate-300 font-bold uppercase">
+                    <Camera className="w-4 h-4 text-cyan-400" />
+                    <span>Keyframe Evidence</span>
+                  </div>
+                  <div className="rounded-xl overflow-hidden border border-slate-700 bg-black aspect-video">
+                    <img
+                      src={activeInc.snapshot_url}
+                      alt="Keyframe Evidence"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+
+                {/* Evidence Micro-Timeline */}
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-1.5 text-xs font-mono-hud text-slate-300 font-bold uppercase">
+                    <Clock className="w-4 h-4 text-cyan-400" />
+                    <span>Evidence Micro-Timeline</span>
+                  </div>
+                  <div className="flex-1 bg-[#090d16] p-3 rounded-xl border border-slate-800 flex flex-col gap-2.5 overflow-y-auto max-h-56">
+                    {(activeInc.evidence_timeline || []).map((ev, idx) => (
+                      <div key={idx} className="flex items-start gap-2 text-xs font-mono-hud">
+                        <span className="px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/30 text-[10px] shrink-0 font-bold">
+                          {ev.timestamp_str}
+                        </span>
+                        <span className="text-slate-200 leading-snug">{ev.description}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Tactical SSB SOP Checklist */}
               <div className="bg-[#090e18] p-4 rounded-xl border border-cyan-500/30 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -220,37 +290,68 @@ export default function IncidentRoom() {
 
                 <div className="flex flex-col gap-2 text-xs font-mono-hud">
                   {activeInc.sop_steps.map((step, idx) => (
-                    <div key={idx} className="flex items-start gap-2.5 bg-[#0d1422] p-2 rounded border border-slate-800/80">
+                    <div key={idx} className="flex items-start gap-2 bg-[#0d1422] p-2 rounded border border-slate-800/80">
                       <span className="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[10px] font-bold shrink-0">
                         STEP {idx + 1}
                       </span>
-                      <span className="text-slate-200 leading-relaxed">
-                        {step}
-                      </span>
+                      <span className="text-slate-200 leading-relaxed">{step}</span>
                     </div>
                   ))}
                 </div>
 
-                {/* Status Updater Actions */}
-                <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 mt-1">
-                  <span className="text-xs font-mono-hud text-slate-400">
-                    Mark Tactical Action:
-                  </span>
-                  <div className="flex items-center gap-2">
+                {/* Operator Actions & Assign Responder Form */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-slate-800/80">
+                  {/* Assign Responder */}
+                  <form onSubmit={handleAssignResponder} className="flex items-center gap-2 font-mono-hud text-xs">
+                    <input
+                      type="text"
+                      placeholder="Assign unit (e.g. QRF Team Alpha)..."
+                      value={responderInput}
+                      onChange={(e) => setResponderInput(e.target.value)}
+                      className="flex-1 px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-white outline-none focus:border-cyan-400"
+                    />
                     <button
-                      onClick={() => updateIncidentStatus(activeInc.incident_id, 'DISPATCHED', 'QRF Dispatched to Sector')}
-                      className="px-3 py-1.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-mono-hud font-bold"
+                      type="submit"
+                      className="px-3 py-1.5 rounded bg-cyan-500 hover:bg-cyan-400 text-black font-bold shrink-0"
                     >
-                      ⚡ QRF Dispatched
+                      Assign
                     </button>
+                  </form>
+
+                  {/* Add Operator Note */}
+                  <form onSubmit={handleAddNote} className="flex items-center gap-2 font-mono-hud text-xs">
+                    <input
+                      type="text"
+                      placeholder="Add investigation note..."
+                      value={noteInput}
+                      onChange={(e) => setNoteInput(e.target.value)}
+                      className="flex-1 px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-white outline-none focus:border-cyan-400"
+                    />
                     <button
-                      onClick={() => updateIncidentStatus(activeInc.incident_id, 'RESOLVED', 'Area Secured and Cleared')}
-                      className="px-3 py-1.5 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-mono-hud font-bold"
+                      type="submit"
+                      className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold shrink-0"
                     >
-                      ✓ Area Secured & Resolved
+                      Add Note
                     </button>
-                  </div>
+                  </form>
                 </div>
+
+                {/* Quick Status Buttons */}
+                <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-800/80">
+                  <button
+                    onClick={() => updateIncidentStatus(activeInc.incident_id, 'UNDER_INVESTIGATION', 'Investigating telemetry anomalies')}
+                    className="px-3 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-mono-hud font-bold"
+                  >
+                    ⚡ Under Investigation
+                  </button>
+                  <button
+                    onClick={() => updateIncidentStatus(activeInc.incident_id, 'RESOLVED', 'Area cordoned and cleared by QRF')}
+                    className="px-3 py-1 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-mono-hud font-bold"
+                  >
+                    ✓ Mark Resolved
+                  </button>
+                </div>
+
               </div>
 
             </div>

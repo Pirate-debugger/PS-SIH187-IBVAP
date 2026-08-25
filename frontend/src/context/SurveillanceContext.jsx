@@ -6,11 +6,13 @@ const SurveillanceContext = createContext(null);
 export function SurveillanceProvider({ children }) {
   const [cameras, setCameras] = useState([]);
   const [telemetry, setTelemetry] = useState({
-    system_name: "IBVAP 2.0",
-    agency: "Sashastra Seema Bal (SSB)",
+    system_name: "IBVAP 3.0",
+    system_version: "3.0.0-PROD",
+    agency: "Sashastra Seema Bal (SSB) | Ministry of Home Affairs",
     sector: "Sector 04 - Zero Line Border Perimeter",
     timestamp: new Date().toLocaleTimeString(),
     threat_level: "DEFCON 3 (ELEVATED)",
+    active_inference_mode: "DEMO SIMULATION",
     active_cameras_count: 6,
     total_cameras_count: 6,
     persons_monitored: 0,
@@ -21,39 +23,51 @@ export function SurveillanceProvider({ children }) {
     pipeline_latency_ms: 18.2,
     edge_cpu_percent: 32.0,
     edge_gpu_percent: 48.0,
-    bandwidth_saved_percent: 78.5
+    bandwidth_saved_percent: 78.5,
+    edge_queue: {
+      central_link_status: "ONLINE",
+      edge_engine_status: "ONLINE",
+      queued_events_count: 0,
+      last_sync_timestamp: new Date().toLocaleTimeString(),
+      sync_progress_percent: 100.0
+    }
   });
   const [alerts, setAlerts] = useState([]);
   const [incidents, setIncidents] = useState([]);
-  const [activeTab, setActiveTab] = useState("grid"); // "grid", "map", "anpr", "incidents", "scenarios"
+  const [activeTab, setActiveTab] = useState("grid"); // "grid", "map", "anpr", "incidents", "investigation", "judge", "scenarios"
   const [spotlightCameraId, setSpotlightCameraId] = useState("BOP-CAM-01");
   const [zoneEditorOpen, setZoneEditorOpen] = useState(false);
   const [soundMuted, setSoundMuted] = useState(false);
   const [selectedIncident, setSelectedIncident] = useState(null);
   const [scenariosList, setScenariosList] = useState([]);
+  const [operatorRole, setOperatorRole] = useState("COMMANDER"); // "OPERATOR", "COMMANDER"
+  const [edgeDegraded, setEdgeDegraded] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [auditLogs, setAuditLogs] = useState([]);
 
   const wsRef = useRef(null);
   const lastAlertCountRef = useRef(0);
 
-  // Sync sound muted state
   useEffect(() => {
     tacticalAudio.setMuted(soundMuted);
   }, [soundMuted]);
 
-  // Initial Data Fetching
+  // Fetch Initial Data
   const fetchInitialData = async () => {
     try {
-      const [camsRes, incsRes, alertsRes, scensRes] = await Promise.all([
+      const [camsRes, incsRes, alertsRes, scensRes, auditRes] = await Promise.all([
         fetch('/api/cameras').then(r => r.json()).catch(() => []),
         fetch('/api/incidents').then(r => r.json()).catch(() => []),
         fetch('/api/incidents/alerts').then(r => r.json()).catch(() => []),
-        fetch('/api/scenarios').then(r => r.json()).catch(() => [])
+        fetch('/api/scenarios').then(r => r.json()).catch(() => []),
+        fetch('/api/audit').then(r => r.json()).catch(() => [])
       ]);
 
       if (Array.isArray(camsRes) && camsRes.length > 0) setCameras(camsRes);
       if (Array.isArray(incsRes)) setIncidents(incsRes);
       if (Array.isArray(alertsRes)) setAlerts(alertsRes);
       if (Array.isArray(scensRes)) setScenariosList(scensRes);
+      if (Array.isArray(auditRes)) setAuditLogs(auditRes);
     } catch (e) {
       console.warn("Initial data fetch error:", e);
     }
@@ -82,7 +96,6 @@ export function SurveillanceProvider({ children }) {
             if (data.cameras) setCameras(data.cameras);
             if (data.alerts) {
               setAlerts(data.alerts);
-              // Sound alert if new alert arrived
               if (data.alerts.length > lastAlertCountRef.current) {
                 const latest = data.alerts[0];
                 if (latest?.severity === "CRITICAL") {
@@ -100,7 +113,6 @@ export function SurveillanceProvider({ children }) {
       };
 
       ws.onclose = () => {
-        // Auto-reconnect after 2 seconds
         setTimeout(connectWs, 2000);
       };
 
@@ -118,7 +130,7 @@ export function SurveillanceProvider({ children }) {
     };
   }, []);
 
-  // Switch Camera Night Vision / HUD Mode
+  // Switch Camera Mode
   const switchCameraMode = async (cameraId, mode) => {
     try {
       tacticalAudio.playAckClick();
@@ -133,7 +145,7 @@ export function SurveillanceProvider({ children }) {
     }
   };
 
-  // Trigger 1-Click Demo Scenario
+  // Trigger Scenario
   const triggerScenario = async (scenarioId) => {
     try {
       tacticalAudio.playCriticalAlarm();
@@ -149,6 +161,64 @@ export function SurveillanceProvider({ children }) {
     }
   };
 
+  // Reset All Scenarios (SIH Judge Mode)
+  const resetAllScenarios = async () => {
+    try {
+      tacticalAudio.playAckClick();
+      await fetch('/api/scenarios/control/reset', { method: 'POST' });
+      fetchInitialData();
+    } catch (e) {
+      console.error("Reset error:", e);
+    }
+  };
+
+  // Pause / Resume Streams
+  const togglePauseStreams = async () => {
+    try {
+      tacticalAudio.playAckClick();
+      const nextState = !isPaused;
+      await fetch('/api/scenarios/control/pause', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paused: nextState })
+      });
+      setIsPaused(nextState);
+    } catch (e) {
+      console.error("Pause error:", e);
+    }
+  };
+
+  // Clear Incidents Queue
+  const clearAllIncidents = async () => {
+    try {
+      tacticalAudio.playAckClick();
+      await fetch('/api/scenarios/control/clear-incidents', { method: 'POST' });
+      setIncidents([]);
+      setAlerts([]);
+      fetchInitialData();
+    } catch (e) {
+      console.error("Clear error:", e);
+    }
+  };
+
+  // Toggle Degraded WAN Connectivity
+  const toggleEdgeConnectivity = async () => {
+    try {
+      tacticalAudio.playAckClick();
+      const nextState = !edgeDegraded;
+      const res = await fetch('/api/system/edge/connectivity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ online: !nextState })
+      });
+      const data = await res.json();
+      setEdgeDegraded(nextState);
+      setTelemetry(prev => ({ ...prev, edge_queue: data }));
+    } catch (e) {
+      console.error("Edge connectivity error:", e);
+    }
+  };
+
   // Acknowledge Alert
   const acknowledgeAlert = async (alertId) => {
     try {
@@ -161,13 +231,13 @@ export function SurveillanceProvider({ children }) {
   };
 
   // Update Incident Status
-  const updateIncidentStatus = async (incidentId, status, notes) => {
+  const updateIncidentStatus = async (incidentId, status, notes, responder) => {
     try {
       tacticalAudio.playAckClick();
       const res = await fetch(`/api/incidents/${incidentId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status, notes })
+        body: JSON.stringify({ status, notes, assigned_responder: responder })
       });
       const updated = await res.json();
       setIncidents(prev => prev.map(inc => inc.incident_id === incidentId ? updated : inc));
@@ -197,8 +267,17 @@ export function SurveillanceProvider({ children }) {
         selectedIncident,
         setSelectedIncident,
         scenariosList,
+        operatorRole,
+        setOperatorRole,
+        edgeDegraded,
+        isPaused,
+        auditLogs,
         switchCameraMode,
         triggerScenario,
+        resetAllScenarios,
+        togglePauseStreams,
+        clearAllIncidents,
+        toggleEdgeConnectivity,
         acknowledgeAlert,
         updateIncidentStatus,
         fetchInitialData

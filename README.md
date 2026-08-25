@@ -1,102 +1,106 @@
-# 🚀 IBVAP 2.0 — Intelligent Border Video Analytics Platform
+# IBVAP 3.0: Intelligent Border Video Analytics Platform
 
-> **"From standard CCTV footage to actionable border intelligence."**
+[![SIH 2026](https://img.shields.io/badge/SIH-SIH2026187-blue.svg)](https://sih.gov.in)
+[![Organization](https://img.shields.io/badge/Ministry-Home%20Affairs-red.svg)](https://mha.gov.in)
+[![Department](https://img.shields.io/badge/Department-Sashastra%20Seema%20Bal%20(SSB)-orange.svg)](https://ssb.gov.in)
+[![Architecture](https://img.shields.io/badge/Architecture-Edge--First%20AI-emerald.svg)](./ARCHITECTURE.md)
+[![License](https://img.shields.io/badge/License-Proprietary%20%2F%20MHA-slate.svg)]()
 
-**Organization**: Ministry of Home Affairs  
-**Department**: Sashastra Seema Bal (SSB), Police II Division  
-**Category**: Software | **Theme**: Smart Automation  
-
----
-
-## 📌 Executive Summary
-
-Conventional border CCTV infrastructure across Border Out Posts (BOPs), checkposts, and zero-line perimeters primarily provides passive recording and manual observation. Existing smart surveillance solutions typically demand expensive proprietary hardware (dedicated FRS, ANPR, thermal cameras, and GPU edge appliances), making large-scale deployment across remote border sectors economically prohibitive.
-
-**IBVAP 2.0** is an autonomous, software-defined surveillance intelligence matrix. It ingests live video streams from standard, low-cost IP cameras and transforms them into an intelligent situational awareness network with zero dedicated smart hardware.
+> **"From Existing CCTV to Actionable Border Intelligence"**  
+> AI-Based Intelligent Video Analytics Platform for Border Surveillance using existing CCTV Infrastructure without requiring proprietary smart camera hardware.
 
 ---
 
-## ⚡ Core Platform Capabilities
+## 🎯 Problem Statement (SIH2026187)
 
-| Module | Capability | Implementation in IBVAP 2.0 |
-|---|---|---|
-| **Module 1** | **Multi-Camera Intelligence** | Concurrent processing of 6+ border camera streams (`BOP-CAM-01` to `BOP-CAM-06`, Riverine marsh, Gate Checkposts) with live AI HUD overlays and stream telemetry. |
-| **Module 2** | **Human Intelligence & Tracking** | Person detection, unique Kalman/Centroid Track IDs (`P-17`), motion speed vectors, direction estimation (e.g. *North $\rightarrow$ South towards Zero Line*), entry/exit counting, and dwell timers. |
-| **Module 3** | **Vehicle Intelligence & ANPR** | Multi-class classification (Car, Truck, Bus, Motorcycle, Patrol Jeep), optical character recognition for license plates, and instant matching against the Border Security Watchlist (Stolen / Wanted / Smuggler). |
-| **Module 4** | **Virtual Border & Polygonal Zones** | Interactive in-browser polygon editor. Real-time Point-in-Polygon & Directional Tripwire crossing alerts powered by Shapely geometric ray-casting. |
-| **Module 5** | **Night Surveillance & Low-Light AI** | Multi-mode vision engine: Adaptive CLAHE/Retinex enhancement, Night-Vision Phosphor Green, and False-Color Thermal/FLIR Heatmap (Ironbow) simulation. |
-| **Module 6** | **Incident Intelligence & SOPs** | Auto-generates structured dossiers (`INC-2026-XXXX`) with timestamps, coordinates, snapshots, severity triage, and actionable SSB Standard Operating Procedure (SOP) checklists with 1-click PDF export. |
-| **Module 7** | **AI Tactical Command Center** | Military/Tactical Glassmorphism UI (Tailwind CSS, React 19, Lucide Icons, Interactive GIS Vector Map, Web Audio tactical sirens, and WebSockets). |
+- **Organization**: Ministry of Home Affairs (MHA)
+- **Department**: Sashastra Seema Bal (SSB), Police II Division
+- **Category**: Software | **Theme**: Smart Automation
+- **Challenge**: Border security forces deploy standard CCTV cameras at Border Out Posts (BOPs), checkposts, and zero-line border roads. However, conventional systems primarily provide passive recording, requiring continuous human monitoring. Proprietary smart cameras with built-in ANPR or FRS are prohibitively expensive to deploy across remote border sectors.
+- **Solution**: **IBVAP 3.0** is an edge-native, software-defined video intelligence platform that transforms existing legacy RTSP/IP cameras into an autonomous border security matrix with explainable mathematical risk scoring, directional virtual tripwires, vehicle ANPR, low-light enhancement, and automated SSB standard operating procedure (SOP) binding.
 
 ---
 
-## 🎯 6 Battle-Tested Hackathon Demo Scenarios
+## 🚀 Key Innovations in IBVAP 3.0
 
-Launchable with 1-Click from the **Demo Scenarios** tab:
-
-1. 🚨 **Scenario 1: Zero-Line Restricted Zone Intrusion** (`BOP-CAM-01`)  
-   *Target enters the high-security red polygon $\rightarrow$ AI detects breach $\rightarrow$ Generates `INC-2026-0081` $\rightarrow$ Triggers QRF Team Alpha SOP.*
-2. ⏱️ **Scenario 2: Perimeter Loitering Detection** (`BOP-CAM-02`)  
-   *Subject paces near the western wire grid for > 8 seconds $\rightarrow$ Triggers loitering alert & searchlight SOP.*
-3. 🚗 **Scenario 3: Blacklisted Vehicle & ANPR Trigger** (`BOP-CAM-03`)  
-   *Bolero SUV approaches Checkpost Alpha $\rightarrow$ Optical OCR extracts `HR26DK8337` $\rightarrow$ Matches Smuggler Watchlist $\rightarrow$ High-threat barrier lockdown SOP.*
-4. 🌙 **Scenario 4: Night-Time Stealth Infiltration** (`BOP-CAM-04`)  
-   *Low-light riverine marsh $\rightarrow$ Switch to Thermal FLIR / NVG mode $\rightarrow$ AI detects crawling heat signature $\rightarrow$ Night Patrol dispatch SOP.*
-5. 👥 **Scenario 5: Multi-Person Directional Perimeter Breach** (`BOP-CAM-05`)  
-   *Group of 3 persons crossing virtual tripwire moving North to South towards the Zero Line $\rightarrow$ Flanking intercept SOP.*
-6. 📦 **Scenario 6: Checkpost Anomaly / Unattended Cargo** (`BOP-CAM-06`)  
-   *Stationary package left near barrier $\rightarrow$ Detected as unattended obstruction anomaly $\rightarrow$ Bomb Disposal & Canine sweep SOP.*
+1. **100% Software-Defined Edge Intelligence**: Direct RTSP/MJPEG video ingestion from legacy CCTV cameras with zero hardware modifications.
+2. **Modular Model Adapter Architecture**: Swappable interfaces for Deep Neural Detectors (`YOLOv8DetectorAdapter`, `TorchvisionAdapter`, `SynthesizedDetectorAdapter`) and OCR (`EasyOCRAdapter`).
+3. **Explainable 8-Rule Event Engine**: Deterministic, auditable rules (`RULE-01` to `RULE-08`) generating human-readable reasons (e.g. *"Person P-017 crossed ZERO-LINE-01 from NORTH to SOUTH at 02:17:42"*).
+4. **Additive Mathematical Risk Scoring**: Itemized 0–100 threat score formula with explicit factor breakdown (`+35 Restricted Zone`, `+25 Directional Crossing`, `+15 Night Movement`).
+5. **Multi-Mode Night Surveillance**: Adaptive CLAHE, Retinex contrast stretching, Gen-3 Phosphor Green NVG, and False-Color FLIR Thermal Simulation.
+6. **Edge-First Degraded Connectivity**: Autonomous local event buffering during border WAN outages with automatic upstream synchronization.
+7. **Incident Lifecycle & Forensics Timelines**: 6-stage lifecycle (`DETECTED` $\rightarrow$ `TRIAGED` $\rightarrow$ `ACKNOWLEDGED` $\rightarrow$ `UNDER_INVESTIGATION` $\rightarrow$ `RESOLVED` $\rightarrow$ `ARCHIVED`) with micro-event timelines and 1-click court-admissible PDF dossier export.
+8. **Multi-Camera Target Journey Forensics**: Universal search and spatial path reconstruction for specific Track IDs (`P-017`, `V-004`).
+9. **Interactive Canvas Zone Editor**: Real-time browser canvas for drawing polygon restricted zones and directional virtual tripwires over live feeds.
+10. **SIH Judge Presentation Center**: 1-Click scenario launcher, Reset, Pause, and 5-Minute presentation cue card.
 
 ---
 
-## 🏗️ Architecture & Technology Stack
+## 📁 System Architecture
 
 ```
-IBVAP 2.0 /
-├── backend/                         # Python 3.14 + FastAPI + OpenCV AI Engine
+IBVAP/
+├── backend/
 │   ├── app/
-│   │   ├── config.py                # Camera metadata, thresholds, file paths
-│   │   ├── main.py                  # FastAPI app, WebSockets (/ws/live), static mounts
-│   │   ├── core/
-│   │   │   ├── ai_pipeline.py       # Object detector & Kalman/Centroid tracker
-│   │   │   ├── zone_engine.py       # Shapely polygonal & tripwire intersection
-│   │   │   ├── anpr_engine.py       # EasyOCR & Watchlist cross-referencing
-│   │   │   ├── night_enhancer.py    # CLAHE, Retinex, NVG & Thermal FLIR filters
-│   │   │   ├── incident_engine.py   # INC-2026-XXXX dossiers, SOP generator, snapshots
-│   │   │   ├── stream_manager.py    # Multi-camera orchestrator & HUD renderer
-│   │   │   └── scenario_simulator.py# 6 dynamic scenario visual streams
-│   │   ├── models/schemas.py        # Pydantic data validation models
-│   │   ├── data/                    # Persistent Watchlist, Zones, Snapshots
-│   │   └── api/                     # REST API endpoints
-│   ├── tests/                       # Automated test suite (Pytest)
-│   └── requirements.txt
-│
-├── frontend/                        # React 19 + Vite + Tailwind CSS UI
-│   ├── src/
-│   │   ├── components/              # Command Center, Map, Grid, ANPR, Incidents
-│   │   ├── context/                 # Global Surveillance Provider & WebSocket sync
-│   │   └── utils/                   # Web Audio synthesizer & PDF dossier export
-│   └── dist/                        # Optimized production build
-│
-├── run_server.py                    # Unified launch script
-└── README.md
+│   │   ├── api/                # FastAPI REST & WebSocket routes
+│   │   │   ├── routes_cameras.py        # Stream & health endpoints
+│   │   │   ├── routes_zones.py          # Polygon & tripwire routes
+│   │   │   ├── routes_incidents.py      # Lifecycle & SOP routes
+│   │   │   ├── routes_anpr.py           # ANPR & Watchlist database
+│   │   │   ├── routes_investigation.py  # Universal search & track journey
+│   │   │   ├── routes_audit.py          # Security audit trail
+│   │   │   ├── routes_scenarios.py      # 6 Demo scenarios & judge controls
+│   │   │   └── routes_system.py         # Telemetry & edge degraded toggle
+│   │   ├── core/               # CV, AI & Intelligence Engines
+│   │   │   ├── model_adapters.py        # Modular Detector & OCR adapters
+│   │   │   ├── rules_engine.py          # Explainable 8-rule event engine
+│   │   │   ├── risk_engine.py           # Additive 0-100 risk scoring
+│   │   │   ├── edge_manager.py          # Edge buffer & degraded sync
+│   │   │   ├── audit_logger.py          # Security action logging
+│   │   │   ├── ai_pipeline.py           # Multi-target Kalman tracking
+│   │   │   ├── zone_engine.py           # Shapely polygon & tripwires
+│   │   │   ├── anpr_engine.py           # EasyOCR & Indian plate matcher
+│   │   │   ├── night_enhancer.py        # CLAHE, Retinex, NVG, Thermal FLIR
+│   │   │   ├── incident_engine.py       # Incident dossiers & SSB SOPs
+│   │   │   ├── scenario_simulator.py    # 6 Procedural border scenarios
+│   │   │   └── stream_manager.py        # Multi-camera orchestrator & HUD
+│   │   └── models/schemas.py   # Pydantic data schemas
+│   └── tests/test_platform.py  # Pytest automated test suite (11/11 passing)
+├── frontend/                   # React 19 + Tailwind CSS Tactical Dashboard
+│   └── src/
+│       ├── components/
+│       │   ├── MultiCameraGrid.jsx      # 3x2 & spotlight video wall
+│       │   ├── TacticalBorderMap.jsx    # SVG GIS map with FOV cones
+│       │   ├── ANPRWatchlistHub.jsx     # Vehicle plate manager
+│       │   ├── IncidentRoom.jsx         # Dossier viewer & PDF export
+│       │   ├── InvestigationHub.jsx     # Search & target journey tracker
+│       │   ├── JudgeDemoPanel.jsx       # SIH presentation control center
+│       │   ├── RealtimeAlertStream.jsx  # Siren audio & alert feed
+│       │   └── ZoneEditorModal.jsx      # Canvas polygon drawing tool
+│       └── utils/sounds.js              # Tactical Web Audio synthesizer
+├── ARCHITECTURE.md             # Detailed multi-layer system architecture
+├── DEMO_GUIDE.md               # 5-Minute SIH Presentation Script
+├── API.md                      # REST & WebSocket specification
+├── SECURITY.md                 # RBAC, privacy & ethics disclosure
+└── run_server.py               # Single-command launcher
 ```
 
 ---
 
-## 🚀 Quick Start Guide
+## ⚡ Quick Start & Execution
 
-### 1. Launch the Platform
+### 1. Prerequisites
+- Python 3.10+
+- Node.js 18+
+
+### 2. Single-Command Launch
 ```bash
 python run_server.py
 ```
+This launches the FastAPI backend and serves the compiled tactical dashboard at:
+👉 **`http://localhost:8000`**
 
-### 2. Access the Command Center
-Open your browser and navigate to:
-- **Command Center Dashboard**: [http://localhost:8000](http://localhost:8000)
-- **Interactive REST API Docs (Swagger UI)**: [http://localhost:8000/docs](http://localhost:8000/docs)
-
-### 3. Run Automated Tests
+### 3. Run Automated Test Suite
 ```bash
 cd backend
 python -m pytest -v tests/test_platform.py
@@ -104,11 +108,20 @@ python -m pytest -v tests/test_platform.py
 
 ---
 
-## 🛡️ Ministry of Home Affairs / SSB Alignment
-IBVAP 2.0 directly satisfies every specification of Problem Statement 187 (SIH 2026):
-- ✅ Transforms existing standard CCTV without hardware lock-in
-- ✅ Real-time Human & Vehicle tracking with direction and dwell analytics
-- ✅ Automatic Number Plate Recognition (ANPR) with active Watchlist matching
-- ✅ Interactive Polygonal Virtual Fencing & Directional Tripwires
-- ✅ Low-Light & Thermal Simulation for 24/7 night surveillance
-- ✅ Structured incident dossiers (`INC-2026-XXXX`) with actionable SSB SOP checklists
+## 📊 Evaluation Scenarios Catalog
+
+| Scenario | Target | Rule ID | Expected Outcome | SSB SOP |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Zero-Line Intrusion** | Person (P-017) | `RULE-01` | CRITICAL Red Zone Breach alert | SOP-SEC-01: QRF Team Alpha |
+| **2. Perimeter Loitering** | Person (P-02) | `RULE-03` | MEDIUM Loitering Dwell alert (>8s) | SOP-SEC-03: Foot Patrol Recon |
+| **3. ANPR Watchlist Hit** | Bolero (HR26DK8337) | `RULE-05` | HIGH Smuggler Interception alert | SOP-SEC-05: Barrier Lockdown |
+| **4. Night Stealth Infiltration** | Crawling Intruder | `RULE-06` | CRITICAL Low-Light Thermal alert | SOP-SEC-06: NVG Night Patrol |
+| **5. Group Boundary Crossing** | 3 Infiltrators | `RULE-04` | HIGH Directional Crossing alert | SOP-SEC-04: Cordon & Search |
+| **6. Unattended Cargo Anomaly** | Stationary Package | `RULE-07` | MEDIUM Checkpost Obstruction | SOP-SEC-07: Bomb Squad Sweep |
+
+---
+
+## 🏛️ Ministry & Department
+- **Ministry**: Ministry of Home Affairs (MHA), Government of India
+- **Department**: Sashastra Seema Bal (SSB), Police II Division
+- **Project**: IBVAP 3.0 (Smart India Hackathon 2026 - SIH2026187)

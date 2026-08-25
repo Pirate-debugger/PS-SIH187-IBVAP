@@ -2,7 +2,7 @@ import asyncio
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from typing import List
-from app.models.schemas import CameraStatus
+from app.models.schemas import CameraStatus, CameraHealth
 
 def get_cameras_router(stream_manager):
     router = APIRouter(prefix="/api/cameras", tags=["Cameras"])
@@ -17,6 +17,13 @@ def get_cameras_router(stream_manager):
         if not cam:
             raise HTTPException(status_code=404, detail="Camera not found")
         return cam
+
+    @router.get("/{camera_id}/health", response_model=CameraHealth)
+    def get_camera_health(camera_id: str):
+        cam = stream_manager.get_camera(camera_id)
+        if not cam or not cam.health:
+            raise HTTPException(status_code=404, detail="Camera health telemetry not found")
+        return cam.health
 
     @router.post("/{camera_id}/mode")
     def set_camera_mode(camera_id: str, payload: dict):

@@ -6,16 +6,14 @@ import MultiCameraGrid from './components/MultiCameraGrid';
 import TacticalBorderMap from './components/TacticalBorderMap';
 import ANPRWatchlistHub from './components/ANPRWatchlistHub';
 import IncidentRoom from './components/IncidentRoom';
+import InvestigationHub from './components/InvestigationHub';
+import JudgeDemoPanel from './components/JudgeDemoPanel';
 import ScenarioSwitcher from './components/ScenarioSwitcher';
 import RealtimeAlertStream from './components/RealtimeAlertStream';
 import ZoneEditorModal from './components/ZoneEditorModal';
-import { Bell, ChevronDown, ChevronUp, ShieldAlert, Sparkles } from 'lucide-react';
 
 function DashboardContent() {
-  const { activeTab, alerts } = useSurveillance();
-  const [alertDrawerOpen, setAlertDrawerOpen] = useState(true);
-
-  const unacknowledgedCount = alerts.filter(a => !a.acknowledged).length;
+  const { activeTab, alerts, edgeDegraded } = useSurveillance();
 
   return (
     <div className="min-h-screen flex flex-col bg-[#06090f] text-slate-100 selection:bg-cyan-500 selection:text-black">
@@ -27,7 +25,7 @@ function DashboardContent() {
       <StatsBar />
 
       {/* Primary Workspace Area */}
-      <main className="flex-1 max-w-[1920px] w-full mx-auto px-4 py-2 flex flex-col lg:flex-row gap-3">
+      <main className="flex-1 max-w-[1920px] w-full mx-auto px-3 py-1.5 flex flex-col lg:flex-row gap-3">
         
         {/* Main Center Display (switched via activeTab) */}
         <div className="flex-1 min-w-0">
@@ -35,10 +33,12 @@ function DashboardContent() {
           {activeTab === 'map' && <TacticalBorderMap />}
           {activeTab === 'anpr' && <ANPRWatchlistHub />}
           {activeTab === 'incidents' && <IncidentRoom />}
+          {activeTab === 'investigation' && <InvestigationHub />}
+          {activeTab === 'judge' && <JudgeDemoPanel />}
           {activeTab === 'scenarios' && <ScenarioSwitcher />}
         </div>
 
-        {/* Right Tactical Alert Stream (Toggleable on Grid & Map views) */}
+        {/* Right Tactical Alert Stream (Always active on Grid & Map views) */}
         {(activeTab === 'grid' || activeTab === 'map') && (
           <aside className="lg:w-84 xl:w-96 flex flex-col shrink-0">
             <RealtimeAlertStream />
@@ -55,14 +55,15 @@ function DashboardContent() {
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1.5 text-cyan-400">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-            IBVAP 2.0 AI EDGE ENGINE: ONLINE
+            IBVAP 3.0 AI EDGE ENGINE: ONLINE
           </span>
           <span className="hidden sm:inline text-slate-700">|</span>
-          <span className="hidden sm:inline">SSB POLICE II DIVISION • SMART BORDER SURVEILLANCE</span>
+          <span className="hidden sm:inline">SSB POLICE II DIVISION • SMART BORDER SURVEILLANCE MATRIX</span>
+          <span className="hidden md:inline text-amber-400 font-bold">[DEMO & SYNTHETIC DATA LABELED]</span>
         </div>
 
         <div className="flex items-center gap-3">
-          <span>AI ACCELERATOR: RTX TENSOR ENGINE</span>
+          <span>LINK: <strong className={edgeDegraded ? "text-orange-400" : "text-emerald-400"}>{edgeDegraded ? "DEGRADED (BUFFERING)" : "ONLINE"}</strong></span>
           <span className="text-slate-700">|</span>
           <span className="text-emerald-400">LATENCY: 18.2ms</span>
         </div>
